@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link href="{{ url_for('static', path='/css/main.css') }}" rel="stylesheet">
+        <title>{% block title %}TrainWeb Home{% endblock %}</title>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td>
+                    <button id="indBtn" type="button" class="headButtonDefault" href="/">Home</button>
+                </td>
+                <td>
+                    <button id="accBtn" type="button" class="headButtonDefault">My Account</button>
+                </td>
+                <td>
+                    <button id="invBtn" type="button" class="headButtonDefault">The Inventory</button>
+                </td>
+                <td>
+                    <button id="helpBtn" type="button" class="headButtonDefault">How to Guides</button>
+                </td>
+            </tr>
+        </table>
+        {% block content %}
+            <h1>Welcome to the TrainWeb Inventory</h1>
+            <p>Use the navigation buttons in the header to access your inventory, manage your account, or acess the help article on how to setup and manage your very own TrainWeb Inventory!</p>
+        {% endblock %}
+    </body>
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+</html>

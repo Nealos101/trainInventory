@@ -1,0 +1,52 @@
+/* Defines the header text font class */
+[class^="head"]{
+    font-family: 'Verdana';
+    color: white;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* headerTables */
+.headTable, td {
+    border: none;
+    border-collapse: collapse;
+}
+td {
+    padding: 5px
+}
+
+/* Header buttons when button's page isn't active */
+.headButtonDefault {
+    background-color: #7fa8eb;
+    border: none;
+    padding: 15px 32px;
+    text-decoration: none;
+    /* font-family: 'Lucida Sans'; */
+    display: inline-block;
+    border-radius: 1cap;
+    /* margin: 4px 2px; */
+    cursor: pointer;
+}
+
+/* Header buttons when button's page is active */
+.headButtonActive {
+    background-color: #bccbe4;
+    border: none;
+    padding: 15px 32px;
+    text-decoration: none;
+    /* font-family: 'Lucida Sans'; */
+    display: inline-block;
+    border-radius: 1cap;
+    /* margin: 4px 2px; */
+    cursor: pointer;
+}
+
+/* Headers */
+h1 {
+    font-family: Verdana;
+}
+
+/* Paragraphs */
+p {
+    font-family: Verdana;
+}

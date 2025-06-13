@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% extends "index.html" %}
+
+{% block title %}Your TrainWeb ~ Inventory{% endblock %}
+
+{% block content %}
+    <h1>Your TrainWeb Inventory</h1>
+    <p>This is the main product of your TrainWeb Inventory.</p>
+{% endblock %}
+
+<!-- OLD REPETITIVE CODE
+<html>
+    <head>
+        <link href="{{ url_for('static', path='/css/main.css') }}" rel="stylesheet">
+        <table>
+            <tr>
+                <td>
+                    <button id=acc.butt type="button" class="headButton">My Account</button>
+                </td>
+                <td>
+                    <button id=inv.butt type="button" class="headButton">The Inventory</button>
+                </td>
+                <td>
+                    <button type="button" class="headButton">How to Guides</button>
+                </td>
+            </tr>
+        </table>
+        <title>Your TrainWeb Inventory</title>
+    </head>
+    <body>
+        <h1>Welcome to the TrainWeb Inventory</h1>
+        <p>This is the main product of your TrainWeb Inventory.</p>
+    </body>
+        <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+</html> -->

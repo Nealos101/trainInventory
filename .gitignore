@@ -1,0 +1,10 @@
+#IGNORE PYCACHE
+__pycache__/
+*.pyc
+
+#IGNORE ENV AND SECRETS CONFIG
+.env
+.env.*
+
+#IGNORE VIRTUAL ENVIRONMENT/S
+venv/
