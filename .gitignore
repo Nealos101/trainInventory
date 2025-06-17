@@ -8,3 +8,6 @@ __pycache__/
 
 #IGNORE VIRTUAL ENVIRONMENT/S
 venv/
+
+#IGNORE DB
+.db

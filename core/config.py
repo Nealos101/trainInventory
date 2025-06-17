@@ -1,7 +1,9 @@
+#TRAININVENTORY CONFIG
+
 #NON  FASTAPI IMPORTS
 from pydantic_settings import BaseSettings
 
-class settings(BaseSettings):
+class Settings(BaseSettings):
     secretKey: str
     algorithm: str
     accessTokenExpireHours: int
@@ -9,4 +11,4 @@ class settings(BaseSettings):
     class Config:
         env_file = ".env"
 
-settings = settings()
+settings = Settings()

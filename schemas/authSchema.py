@@ -1,19 +1,12 @@
+#THIS FILE HOLDS THE MODEL INFORMATION SUPPORTING THE AUTH FUNCTIONS OF THE WEB APP, THE MAIN COMPONENTS SUPPORTING AUTHENTIFICATION
+
 #NON  FASTAPI IMPORTS
 from pydantic import BaseModel
 
 #AUTH CLASSES
 class token(BaseModel):
-    accessToken: str
-    tokenType: str
+    access_token: str
+    token_type: str
 
 class tokenData(BaseModel):
-    username: str | None = None
-
-class user(BaseModel):
-    username: str
-    email: str | None = None
-    fullName: str | None = None
-    disabled: bool | None = None
-
-class userInDb(user):
-    hashedPassword: str
+    userId: str | None = None

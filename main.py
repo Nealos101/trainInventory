@@ -1,3 +1,5 @@
+#THIS IS THE MAIN FASTAPI FILE, THE APPLICATION ITSELF
+
 #MAIN FASTAPI IMPORTS
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -16,12 +18,6 @@ vAuthRoute = authRoutes
 vDbService = dbService
 vDbRoute = dbRoutes
 
-#DEPRECIATED CODE FROM FASTAPI DOCUMENTATION
-# @app.on_event("startup")
-# def on_startup():
-#     create_db_and_tables()
-
-#NEW VERSION
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     vDbService.createDbAndTables()
@@ -29,7 +25,6 @@ async def lifespan(app: FastAPI):
 
 #APP DEFINE
 app = FastAPI(lifespan=lifespan)
-
 
 #APP ROUTERS BASE_ROUTES
 for vBaseRoute in [
@@ -44,9 +39,7 @@ for vBaseRoute in [
 
 #APP ROUTERS AUTH_ROUTES
 for vAuthRoute in [
-    vAuthRoute.routerToken,
-    vAuthRoute.routerMe,
-    vAuthRoute.routerMeItems
+    vAuthRoute.routerToken
 ]:
     app.include_router(vAuthRoute)
 

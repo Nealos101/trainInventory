@@ -1,10 +1,11 @@
-#THIS FILE SUPPORTS THE AUTH ROUTES OF THE WEB APP, THE MAIN COMPONENTS SUPPORTING AUTHENTIFICATION
+#THIS FILE HOLDS THE AUTH SERVICES OF THE WEB APP, THE MAIN COMPONENTS SUPPORTING AUTHENTIFICATION
 
 #CORE IMPORTS
 from fastapi import Depends, HTTPException, status
 
 #NON  FASTAPI IMPORTS
 import jwt
+from sqlmodel import Session
 from jwt.exceptions import InvalidTokenError
 from typing import Annotated, Optional
 from datetime import datetime, timedelta, timezone
@@ -23,19 +24,8 @@ vSetting = settings
 vDbSchemas = dbSchema
 vDbService = dbService
 
-#FAKE DB
-fakeUsersDb = {
-    "johndoe": {
-        "username": "johndoe",
-        "fullName": "John Doe",
-        "email": "johndoe@example.com",
-        "hashedPassword": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
-
 #OAUTH2 HANDLING FUNCTIONS
-oauth2Scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2Scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 @staticmethod
 def verifyPassword(plainPassword, hashedPassword):
@@ -43,11 +33,6 @@ def verifyPassword(plainPassword, hashedPassword):
 
 def getPasswordHash(password):
     return vSecurity.pwdContext.hash(password)
-
-def getUser(db, username: str):
-    if username in db:
-        userDict = db[username]
-        return vAuthSchema.userInDb(**userDict)
 
 def authenticateOwner(
         db,
@@ -61,36 +46,40 @@ def authenticateOwner(
         return None
     return owner
 
-def createAccessToken(data: dict, expires_delta: timedelta | None = None):
+def createAccessToken(data: dict, expiresDelta: timedelta | None = None):
     toEncode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+    if expiresDelta:
+        expire = datetime.now(timezone.utc) + expiresDelta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(hours=vSetting.accessTokenExpireHours)
     toEncode.update({"exp": expire})
     encodedJwt = jwt.encode(toEncode, vSetting.secretKey, algorithm=vSetting.algorithm)
     return encodedJwt
 
-async def getCurrentUser(token: Annotated[str, Depends(oauth2Scheme)]):
+async def getCurrentUser(
+        token: Annotated[str, Depends(oauth2Scheme)],
+        session: Session = Depends(vDbService.getSession)
+):
     credentialsException = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"})
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
-        payload = jwt.decode(token, settings.secretKey, algorithms=[settings.algorithm])
-        vUsername: str = payload.get("sub")
-        if vUsername is None:
+        payload = jwt.decode(token, vSetting.secretKey, algorithms=[vSetting.algorithm])
+        userId: str = payload.get("sub")
+        if userId is None:
             raise credentialsException
-        vTokenData = vAuthSchema.tokenData(username=vUsername)
+        tokenData = vAuthSchema.tokenData(userId=userId)
     except InvalidTokenError:
         raise credentialsException
-    user = vDbService.getOwnerByUsername(username=vTokenData.username)
+    user = session.query(vDbSchemas.owner).filter_by(ownerId=tokenData.userId).first()
     if user is None:
         raise credentialsException
     return user
 
 async def getCurrentActiveUser(
-    currentUser: Annotated[vAuthSchema.user, Depends(getCurrentUser)]):
+    currentUser: Annotated[vDbSchemas.owner, Depends(getCurrentUser)]):
     if currentUser.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return currentUser

@@ -1,4 +1,4 @@
-#THIS FILE SUPPORTS THE AUTH ROUTES OF THE WEB APP, THE MAIN COMPONENTS SUPPORTING AUTHENTIFICATION
+#THIS FILE HOLDS THE AUTH ROUTERS OF THE WEB APP, THE MAIN COMPONENTS SUPPORTING AUTHENTIFICATION
 
 #CORE IMPORTS
 from fastapi import Depends, HTTPException, status
@@ -12,14 +12,16 @@ from typing import Annotated
 from datetime import timedelta
 from sqlmodel import Session
 
+
 #IMPORT FILES
-from schemas import authSchema
+from schemas import authSchema, dbSchema
 from services import authService, dbService
 
 #IMPORT FILES VARIABLE BRIDGES
 vAuthSchema = authSchema
 vAuthService = authService
 vDbService = dbService
+vDbSchema = dbSchema
 
 #IMPORT CONFIGS
 from core.config import settings
@@ -29,16 +31,6 @@ from core.config import settings
 routerToken = APIRouter(
     prefix="/token",
     tags=["token"]
-)
-
-routerMe = APIRouter(
-    prefix="/users/me",
-    tags=["usersMe"]
-)
-
-routerMeItems = APIRouter(
-    prefix="/users/me/items",
-    tags=["usersMeItems"]
 )
 
 #AUTH ROUTERS
@@ -55,15 +47,5 @@ async def loginForAccessToken(
             headers={"WWW-Authenticate": "Bearer"})
     accessTokenExpires = timedelta(hours=settings.accessTokenExpireHours)
     accessToken = vAuthService.createAccessToken(
-        data={"sub": owner.ownerId}, expiresDelta=accessTokenExpires)
-    return vAuthSchema.token(accessToken=accessToken, tokenType="bearer")
-
-@routerMe.get("/", response_model=vAuthSchema.user)
-async def readUsersMe(
-    current_user: Annotated[vAuthSchema.user, Depends(vAuthService.getCurrentActiveUser)]):
-    return current_user
-
-@routerMeItems.get("/")
-async def readOwnItems(
-    current_user: Annotated[vAuthSchema.user, Depends(vAuthService.getCurrentActiveUser)]):
-    return [{"itemId": "Foo", "owner": current_user.username}]
+        data={"sub": str(owner.ownerId)}, expiresDelta=accessTokenExpires)
+    return vAuthSchema.token(access_token=accessToken, token_type="bearer")
