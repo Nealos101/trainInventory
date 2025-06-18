@@ -1,8 +1,13 @@
 #THIS FILE HOLDS THE AUTH ROUTERS OF THE WEB APP, THE MAIN COMPONENTS SUPPORTING AUTHENTIFICATION
 
 #CORE IMPORTS
-from fastapi import Depends, HTTPException, status
-from fastapi import APIRouter
+from fastapi import (
+    Depends,
+    HTTPException,
+    status,
+    APIRouter,
+    Request)
+from fastapi.responses import JSONResponse
 
 #SUBCORE IMPORTS
 from fastapi.security import OAuth2PasswordRequestForm
@@ -33,6 +38,16 @@ routerToken = APIRouter(
     tags=["token"]
 )
 
+routerRefreshToken = APIRouter(
+    prefix="/refreshToken",
+    tags=["refreshToken"]
+)
+
+routerPerm = APIRouter(
+    prefix="/perm",
+    tags=["permissions"]
+)
+
 #AUTH ROUTERS
 @routerToken.post("/")
 async def loginForAccessToken(
@@ -45,7 +60,52 @@ async def loginForAccessToken(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"})
-    accessTokenExpires = timedelta(hours=settings.accessTokenExpireHours)
+    accessTokenExpires = timedelta(minutes=settings.accessTokenExpireMinutes)
+    # refreshTokenExpires = timedelta(days=settings.refreshTokenExpireDays)
     accessToken = vAuthService.createAccessToken(
-        data={"sub": str(owner.ownerId)}, expiresDelta=accessTokenExpires)
-    return vAuthSchema.token(access_token=accessToken, token_type="bearer")
+        data={"sub": str(owner.ownerId)}, accessExpiresDelta=accessTokenExpires
+    )
+    refreshToken = vAuthService.createRefreshToken(
+        data={"sub": str(owner.ownerId)}
+        # , refreshExpiresDelta=refreshTokenExpires
+    )
+    response = JSONResponse(content={
+    "access_token": accessToken,
+    "token_type": "bearer"
+    })
+    response.set_cookie(
+        key="refreshToken",
+        value=refreshToken,
+        httponly=True,
+        secure=True,
+        samesite="strict",
+        path="/refreshToken"
+    )
+    return response
+ 
+
+@routerRefreshToken.post("/")
+async def refreshToken(request: Request):
+    refreshToken = request.cookies.get("refreshToken")
+    if not refreshToken:
+        raise HTTPException(status_code=401, detail="Missing refresh token")
+    
+    payload = vAuthService.verifyToken(refreshToken)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    newAccessToken = vAuthService.createAccessToken({"sub": payload["sub"]})
+    return {"access_token": newAccessToken, "token_type": "bearer"}
+
+#PERMISSIONS ROUTES
+@routerPerm.post("/")
+def create_permissions(
+    *,
+    session: Session = Depends(vDbService.getSession),
+    vPermission: vAuthSchema.PermissionsCreate
+):
+    vDbPerm = vAuthSchema.Permissions.model_validate(vPermission)
+    session.add(vDbPerm)
+    session.commit()
+    session.refresh(vDbPerm)
+    return vDbPerm

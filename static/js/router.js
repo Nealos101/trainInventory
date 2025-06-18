@@ -1,5 +1,3 @@
-// window.onload = function() {
-
 const currentPath = window.location.pathname;
 
 var paths = {

@@ -39,7 +39,9 @@ for vBaseRoute in [
 
 #APP ROUTERS AUTH_ROUTES
 for vAuthRoute in [
-    vAuthRoute.routerToken
+    vAuthRoute.routerToken,
+    vAuthRoute.routerRefreshToken,
+    vAuthRoute.routerPerm
 ]:
     app.include_router(vAuthRoute)
 

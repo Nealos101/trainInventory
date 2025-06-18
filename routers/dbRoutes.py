@@ -5,7 +5,6 @@ from fastapi import Depends, HTTPException, Query, APIRouter
 
 #NON  FASTAPI IMPORTS
 from sqlmodel import Session, select
-from typing import Annotated
 
 #IMPORT FILES
 from core import security
@@ -24,7 +23,11 @@ routerOwners = APIRouter(
 )
 
 @routerOwners.post("/", response_model=vDbSchemas.ownerPublic)
-def createOwner(*, session: Session = Depends(vDbService.getSession), owner: vDbSchemas.ownerCreate):
+def createOwner(
+    *,
+    session: Session = Depends(vDbService.getSession),
+    owner: vDbSchemas.ownerCreate
+):
     hashedPassword = vCoreSecurity.hashPassword(owner.password)
     with Session(vDbService.engine) as session:
         extraData = {"hashedPassword": hashedPassword}

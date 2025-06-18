@@ -20,12 +20,18 @@
                 <td>
                     <button id="helpBtn" type="button" class="headButtonDefault">How to Guides</button>
                 </td>
+                <td>
+                    <div id="loginContainer"></div>
+                    <script src="{{ url_for('static', path='/js/auth.js') }}"></script>
+                </td>
             </tr>
         </table>
+        <div class="mainBody">
         {% block content %}
-            <h1>Welcome to the TrainWeb Inventory</h1>
+            <h1 >Welcome to the TrainWeb Inventory</h1>
             <p>Use the navigation buttons in the header to access your inventory, manage your account, or acess the help article on how to setup and manage your very own TrainWeb Inventory!</p>
         {% endblock %}
+        </div>
     </body>
-    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+    <script src="{{ url_for('static', path='/js/router.js') }}"></script>
 </html>

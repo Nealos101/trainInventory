@@ -18,6 +18,7 @@ td {
 /* Header buttons when button's page isn't active */
 .headButtonDefault {
     background-color: #7fa8eb;
+    border: 2px solid #bccbe4;
     border: none;
     padding: 15px 32px;
     text-decoration: none;
@@ -26,11 +27,13 @@ td {
     border-radius: 1cap;
     /* margin: 4px 2px; */
     cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Header buttons when button's page is active */
 .headButtonActive {
     background-color: #bccbe4;
+    border: 2px solid #7fa8eb;
     border: none;
     padding: 15px 32px;
     text-decoration: none;
@@ -39,14 +42,41 @@ td {
     border-radius: 1cap;
     /* margin: 4px 2px; */
     cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Login bar classes */
+.loginBar {
+    max-width: 500px;
+    padding: 1rem;
+    border: 2px solid #bccbe4;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: cadetblue;
+    text-align: center;
+    transition: border-color 0.3s ease;
+    font-family: Verdana;
+    font-size: small;
+    color: white;
+}
+    .loginBar input {
+        padding: 3px;
+        background-color: #bccbe4;
+    }
+    .loginBar button {
+        padding: 5px 7px;
+        border-radius: 0.5cap;
+        background-color: #7fa8eb;
+        color: white;
+        font-weight: bolder;
+        cursor: pointer;
+    }
+
+#loginContainer {
+    display: inline-block;
 }
 
 /* Headers */
-h1 {
-    font-family: Verdana;
-}
-
-/* Paragraphs */
-p {
+.mainBody {
     font-family: Verdana;
 }

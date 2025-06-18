@@ -46,15 +46,25 @@ def authenticateOwner(
         return None
     return owner
 
-def createAccessToken(data: dict, expiresDelta: timedelta | None = None):
+def createAccessToken(data: dict, accessExpiresDelta: timedelta | None = None):
     toEncode = data.copy()
-    if expiresDelta:
-        expire = datetime.now(timezone.utc) + expiresDelta
+    if accessExpiresDelta:
+        expire = datetime.now(timezone.utc) + accessExpiresDelta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(hours=vSetting.accessTokenExpireHours)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=vSetting.accessTokenExpireMinutes)
     toEncode.update({"exp": expire})
     encodedJwt = jwt.encode(toEncode, vSetting.secretKey, algorithm=vSetting.algorithm)
     return encodedJwt
+
+def createRefreshToken(data: dict):
+    refreshExpiresDelta = datetime.now(timezone.utc) + timedelta(days=vSetting.refreshTokenExpireDays)
+    toEncode = data.copy()
+    toEncode.update({"exp": refreshExpiresDelta})
+    return jwt.encode(toEncode, vSetting.secretKey, algorithm=vSetting.algorithm)
+
+def verifyToken(token: str):
+    payload = jwt.decode(token, vSetting.secretKey, algorithms=vSetting.algorithm)
+    return payload
 
 async def getCurrentUser(
         token: Annotated[str, Depends(oauth2Scheme)],
