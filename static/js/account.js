@@ -1,4 +1,8 @@
-window.onload = function() {
+window.onload = (function() {
+    if (!window.location.pathname.endsWith("/account/")) {
+        return;
+    }
+
     const container = document.getElementById("accountContainer");
 
     if (isLoggedIn()) {
@@ -6,7 +10,7 @@ window.onload = function() {
     } else {
         renderLoginOrRegisterForm(container);
     }
-};
+});
 
 async function register(event) {
     event.preventDefault();
@@ -21,7 +25,7 @@ async function register(event) {
         const response = await fetch(apiUrl("/owners"), {
             method: "POST",
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 name,

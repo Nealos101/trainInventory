@@ -1,7 +1,7 @@
 #THIS FILE HOLDS THE DB ROUTERS OF THE WEB APP, THE MAIN BACKEND COMPONENTS SUPPORTING DATA EXCHANGE
 
 #MAIN FASTAPI IMPORTS
-from fastapi import Depends, HTTPException, Query, APIRouter
+from fastapi import Depends, HTTPException, Query, APIRouter, status
 
 #NON  FASTAPI IMPORTS
 from sqlmodel import Session, select
@@ -28,6 +28,16 @@ def createOwner(
     session: Session = Depends(vDbService.getSession),
     owner: vDbSchemas.ownerCreate
 ):
+    
+    #ASSURES UNIQUE USERNAME
+    existingOwner = session.query(vDbSchemas.owner).filter_by(username=owner.username).first()
+    if existingOwner:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists"
+        )
+
+    #CREATES THE NEW USER
     hashedPassword = vCoreSecurity.hashPassword(owner.password)
     extraData = {"hashedPassword": hashedPassword}
     dbOwner = vDbSchemas.owner.model_validate(owner, update=extraData)
