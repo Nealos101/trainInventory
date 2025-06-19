@@ -2,6 +2,10 @@ function apiUrl(path) {
     return `${window.location.origin}${path}`;
 }
 
+function goToRegister() {
+    window.location.href = "/account";
+}
+
 function isLoggedIn() {
     return localStorage.getItem("accessToken") !== null;
 }
@@ -10,28 +14,52 @@ function getUsername() {
     return localStorage.getItem("username");
 }
 
-function renderLoginUI() {
-    const container = document.getElementById("loginContainer");
-    container.innerHTML = "";
+function renderLoggedInUI() {
+    const user = getUsername();
+    return `
+        <div class="loginBar">Welcome, <strong>${user}</strong>!
+            <button onclick="logout()">Logout</button>
+        </div>
+    `;
+}
 
-    if (isLoggedIn()) {
-        const user = getUsername();
-        container.innerHTML = `
-            <div class="loginBar">Welcome, <strong>${user}</strong>!
-                <button onclick="logout()">Logout</button>
+function renderLoginUI() {
+    return `
+        <div class="loginBar">
+            <form onsubmit="login(event)">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    `;
+}
+
+function renderCreateAccountUI() {
+    return `
+        <div class="loginBar">
+            <button onclick="goToRegister()">Register</button>
+        
+    `;
+}
+
+function renderLoginOrRegisterUI() {
+    const container = document.getElementById("loginContainer");
+
+    let html = "";
+
+    if (!isLoggedIn()) {
+        html = `
+            <div class="authRow">
+                ${renderLoginUI()}
+                ${renderCreateAccountUI()}
             </div>
         `;
     } else {
-        container.innerHTML = `
-            <div class="loginBar">
-                <form onsubmit="login(event)">
-                    <input type="text" id="username" placeholder="Username" required>
-                    <input type="password" id="password" placeholder="Password" required>
-                    <button type="submit">Login</button>
-                </form>
-            </div>
-        `;
+        html += renderLoggedInUI()
     }
+    
+    container.innerHTML = html;
 }
 
 async function login(event) {
@@ -59,7 +87,7 @@ async function login(event) {
         const data = await response.json();
         localStorage.setItem("accessToken", data.access_token);
         localStorage.setItem("username", username);
-        renderLoginUI();
+        renderLoginOrRegisterUI();
     } catch (error) {
         alert("Login failed: " + error.message);
     }
@@ -68,7 +96,7 @@ async function login(event) {
 function logout() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("username");
-    renderLoginUI();
+    renderLoginOrRegisterUI();
 }
 
 async function refreshAccessToken() {
@@ -109,4 +137,4 @@ async function authFetch(url, options = {}) {
     return response;
 }
 
-window.onload = renderLoginUI;
+window.onload = renderLoginOrRegisterUI;

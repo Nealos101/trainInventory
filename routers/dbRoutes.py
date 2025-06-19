@@ -29,17 +29,21 @@ def createOwner(
     owner: vDbSchemas.ownerCreate
 ):
     hashedPassword = vCoreSecurity.hashPassword(owner.password)
-    with Session(vDbService.engine) as session:
-        extraData = {"hashedPassword": hashedPassword}
-        dbOwner = vDbSchemas.owner.model_validate(owner, update=extraData)
-        session.add(dbOwner)
-        session.commit()
-        session.refresh(dbOwner)
-        return dbOwner
+    extraData = {"hashedPassword": hashedPassword}
+    dbOwner = vDbSchemas.owner.model_validate(owner, update=extraData)
+    session.add(dbOwner)
+    session.commit()
+    session.refresh(dbOwner)
+
+    #APPLIES THE DEFAULT PERMISSIONS        
+    vAuthService.assignDefaultPermissions(session, dbOwner.ownerId)
+        
+    return dbOwner
 
 @routerOwners.get("/", response_model=list[vDbSchemas.ownerPublic])
 def readOwners(
     *,
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("admin")),
     session: Session = Depends(vDbService.getSession),
     offset: int = 0,
     limit: int = Query(default=100, le=100)
@@ -50,6 +54,7 @@ def readOwners(
 @routerOwners.get("/{ownerId}", response_model=vDbSchemas.ownerPublic)
 def readOwner(
     *,
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("readOnly", "ownerPerm", "admin")),
     session: Session = Depends(vDbService.getSession),
     ownerId: int,
     currentUser: vDbSchemas.owner = Depends(vAuthService.getCurrentActiveUser)
@@ -65,6 +70,7 @@ def readOwner(
 @routerOwners.patch("/{ownerId}", response_model=vDbSchemas.ownerPublic)
 def update_owner(
     *,
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("ownerPerm", "admin")),
     session: Session = Depends(vDbService.getSession),
     ownerId: int,
     owner: vDbSchemas.ownerUpdate,
@@ -91,6 +97,7 @@ def update_owner(
 @routerOwners.delete("/{ownerId}")
 def deleteOwner(
     *,
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("ownerPerm", "admin")),
     session: Session = Depends(vDbService.getSession), ownerId: int,
     currentUser: vDbSchemas.owner = Depends(vAuthService.getCurrentActiveUser)
 ):

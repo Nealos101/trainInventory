@@ -27,7 +27,7 @@ class PermissionsBase(SQLModel):
     ownerId: Optional[int] = Field(default=None, foreign_key="owner.ownerId")
 
 class Permissions(PermissionsBase, table=True):
-    permId: Optional[int] = Field(default=None, primary_key=True, index=True)
+    permId: int | None = Field(default=None, primary_key=True)
 
     owner: Optional["owner"] = Relationship(back_populates="Permissions")
 
