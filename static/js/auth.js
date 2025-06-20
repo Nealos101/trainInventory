@@ -45,17 +45,18 @@ function renderCreateAccountUI() {
 
 function renderLoginOrRegisterUI() {
     const container = document.getElementById("loginContainer");
+    const accountContainer = document.getElementById("accountContainer");
 
     let html = "";
 
-    if (!isLoggedIn()) {
+    if (!isLoggedIn() && !accountContainer) {
         html = `
             <div class="authRow">
                 ${renderLoginUI()}
                 ${renderCreateAccountUI()}
             </div>
         `;
-    } else {
+    } else if (!accountContainer) {
         html += renderLoggedInUI()
     }
     
@@ -87,7 +88,8 @@ async function login(event) {
         const data = await response.json();
         localStorage.setItem("accessToken", data.access_token);
         localStorage.setItem("username", username);
-        renderLoginOrRegisterUI();
+        window.location.reload();
+        // renderLoginOrRegisterUI();
     } catch (error) {
         alert("Login failed: " + error.message);
     }
@@ -97,6 +99,8 @@ function logout() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("username");
     renderLoginOrRegisterUI();
+    window.location.reload();
+    
 }
 
 async function refreshAccessToken() {
@@ -111,6 +115,7 @@ async function refreshAccessToken() {
         return true;
     } else {
         logout();
+        window.location.reload();
         return false;
     }
 }
@@ -137,4 +142,11 @@ async function authFetch(url, options = {}) {
     return response;
 }
 
-window.onload = renderLoginOrRegisterUI;
+window.onload = function () {
+    const accountContainer = document.getElementById("accountContainer");
+
+    // DO NOT LOAD ON ACCOUNT PAGE (BECAUSE THERE IS LOGIN FORMS ON THE PAGE)
+    if (!accountContainer) {
+        renderLoginOrRegisterUI();
+    }
+};

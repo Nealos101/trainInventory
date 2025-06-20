@@ -22,6 +22,11 @@ routerOwners = APIRouter(
     tags=["owners"]
 )
 
+routerUser = APIRouter(
+    prefix="/user",
+    tags=["user"]
+)
+
 @routerOwners.post("/", response_model=vDbSchemas.ownerPublic)
 def createOwner(
     *,
@@ -77,10 +82,18 @@ def readOwner(
     
     return owner
 
-@routerOwners.patch("/{ownerId}", response_model=vDbSchemas.ownerPublic)
+@routerUser.get("/me", response_model=vDbSchemas.ownerPublic)
+def getCurrentOwner(
+    *,
+    currentUser: vDbSchemas.owner = Depends(vAuthService.getCurrentActiveUser),
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("readOnly", "ownerPerm", "admin"))
+):
+    return currentUser
+
+@routerOwners.patch("/admin/{ownerId}", response_model=vDbSchemas.ownerPublic)
 def update_owner(
     *,
-    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("ownerPerm", "admin")),
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("admin")),
     session: Session = Depends(vDbService.getSession),
     ownerId: int,
     owner: vDbSchemas.ownerUpdate,
@@ -104,18 +117,76 @@ def update_owner(
     session.refresh(dbOwner)
     return dbOwner
 
+@routerOwners.patch("/me", response_model=vDbSchemas.ownerPublic)
+def updateOwner(
+    *,
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("readOnly", "ownerPerm", "admin")),
+    session: Session = Depends(vDbService.getSession),
+    owner: vDbSchemas.ownerUpdate,
+    currentUser: vDbSchemas.owner = Depends(vAuthService.getCurrentActiveUser)
+):
+    ownerData = owner.model_dump(exclude_unset=True)
+    #ASSURES UNIQUE USERNAME
+    if "username" in ownerData:
+        newUserName = ownerData["username"]
+        if newUserName == currentUser.username:
+            raise HTTPException(
+                status_code=400,
+                detail="This username is already your username"            
+            )
+
+    existingOwner = session.query(vDbSchemas.owner).filter_by(username=owner.username).first()
+    if existingOwner:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists"
+        )
+
+    with Session(vDbService.engine) as session:
+       dbOwner = session.get(vDbSchemas.owner, currentUser.ownerId)
+    if not dbOwner:
+        raise HTTPException(status_code=404, detail="owner not found")
+    if dbOwner.ownerId != currentUser.ownerId:
+        raise HTTPException(status_code=403, detail="Not authorized to access this owner")
+
+    extraData = {}
+    if "password" in ownerData:
+        password = ownerData["password"]
+        hashedPassword = vCoreSecurity.hashPassword(password)
+        extraData["hashedPassword"] = hashedPassword
+        
+    dbOwner.sqlmodel_update(ownerData, update=extraData)
+    session.add(dbOwner)
+    session.commit()
+    session.refresh(dbOwner)
+    return dbOwner
+
 @routerOwners.delete("/{ownerId}")
 def deleteOwner(
     *,
-    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("ownerPerm", "admin")),
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("admin")),
     session: Session = Depends(vDbService.getSession), ownerId: int,
     currentUser: vDbSchemas.owner = Depends(vAuthService.getCurrentActiveUser)
 ):
     owner = session.get(vDbSchemas.owner, ownerId)
     if not owner:
         raise HTTPException(status_code=404, detail="owner not found")
-    if owner.ownerId != currentUser.ownerId:
-        raise HTTPException(status_code=403, detail="Not authorized to access this owner")
+    
+    session.delete(owner)
+    session.commit()
+    return {"ok": True}
+
+@routerUser.delete("/me")
+def deleteOwner(
+    *,
+    ownerPerm: vDbSchemas.owner = Depends(vAuthService.requireAnyPermission("ownerPerm", "admin")),
+    session: Session = Depends(vDbService.getSession),
+    currentUser: vDbSchemas.owner = Depends(vAuthService.getCurrentActiveUser)
+):
+    owner = session.get(vDbSchemas.owner, currentUser.ownerId)
+    if not owner:
+        raise HTTPException(status_code=404, detail="owner not found")
+    
     session.delete(owner)
     session.commit()
     return {"ok": True}

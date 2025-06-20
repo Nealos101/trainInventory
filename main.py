@@ -47,7 +47,8 @@ for vAuthRoute in [
 
 #APP ROUTERS DB_ROUTES
 for vDbRoute in [
-    vDbRoute.routerOwners
+    vDbRoute.routerOwners,
+    vDbRoute.routerUser
 ]:
     app.include_router(vDbRoute)
 

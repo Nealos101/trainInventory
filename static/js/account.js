@@ -1,12 +1,18 @@
-window.onload = (function() {
-    if (!window.location.pathname.endsWith("/account/")) {
-        return;
-    }
+// window.onload = function() {
+//     const container = document.getElementById("accountContainer");
 
+//     if (isLoggedIn()) {
+//         renderAccountView();
+//     } else {
+//         renderLoginOrRegisterForm(container);
+//     }
+// };
+
+document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("accountContainer");
 
     if (isLoggedIn()) {
-        container.innerHTML = `<p>Welcome, ${getUserName()}!</p>`;
+        loadAccountDetails(container);
     } else {
         renderLoginOrRegisterForm(container);
     }
@@ -42,7 +48,7 @@ async function register(event) {
         }
 
         alert("Account created! Please log in.");
-        window.location.reload(); // or redirect to login view
+        window.location.href = "/account";
     } catch (error) {
         alert("Error: " + error.message);
     }
@@ -80,4 +86,130 @@ function showRegistrationForm() {
             <button onclick="window.location.reload()">Back to Login</button>
         </div>
     `;
+}
+
+function renderAccountView(containerId = "accountContainer", userData) {
+    const container = document.getElementById(containerId);
+    if (!container || !userData) return;
+
+    container.innerHTML = `
+    <div class="accountManager">
+        <h2>Welcome, ${userData.name}</h2>
+        <p><strong>Name:</strong> ${userData.name}</p>
+        <p><strong>Username:</strong> ${userData.username}</p>
+        <p><strong>Age:</strong> ${userData.age || "N/A"}</p></b>
+        <p>Your password can be changed in the edit form</p>
+
+        <button onclick="showEditAccountForm()">Edit Details</button>
+        <button onclick="deleteAccount()">Delete Account</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+    `;
+}
+
+function showEditAccountForm() {
+    const container = document.getElementById("accountContainer");
+
+    container.innerHTML = `
+        <div class="accountManager">
+            <h2>Edit Account</h2>
+            <p>Update any of your details in the form below then click "save changes" to update them.</p>
+            <p>Only filled fields will be updated.</p>
+            <form onsubmit="submitAccountChanges(event)">
+                <input type="text" id="editName" placeholder="Name"><br/>        
+                <input type="text" id="editUsername" placeholder="Username (must be unique)"><br/>
+                <input type="number" id="editAge" placeholder="Age (optional)"><br/>
+                <input type="password" id="editPassword" placeholder="New Password"><br/>
+                <button type="submit">Save Changes</button>
+            </form>
+            <button onclick="window.location.reload()">Cancel</button>
+        <div>
+    `;
+}
+
+async function submitAccountChanges(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("editName").value.trim();
+    const username = document.getElementById("editUsername").value.trim();
+    const age = document.getElementById("editAge").value.trim();
+    const password = document.getElementById("editPassword").value.trim();
+
+   
+    const body = {};
+        if (name) body.name = name;
+        if (username) body.username = username;
+        if (age) body.age = Number(age);
+        if (password) body.password = password;
+        
+    if (Object.keys(body).length == 0) {
+        alert("Please fill in at least one field to update");
+        return;
+    }
+
+    try {
+        const response = await fetch(apiUrl("/owners/me"), {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.detail || "Update failed");
+        }
+
+        alert("Account updated successfully.");
+        window.location.reload();
+    } catch (error) {
+        alert("Error: " + error.message);
+    }
+}
+
+async function deleteAccount() {
+    const confirmDelete = confirm("Are you sure you want to delete your TrainWeb account? This action cannot be undone.");
+    if (!confirmDelete) return;
+
+    try {
+        const response = await fetch(apiUrl("/user/me"), {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            }
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.detail || "Delete failed");
+        }
+
+        alert("Account deleted.");
+        logoutUser();
+        window.location.reload();
+    } catch (error) {
+        alert("Error: " + error.message);
+    }
+}
+
+async function loadAccountDetails() {
+    try {
+            const response = await fetch(apiUrl(`/user/me`), {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to load account details");
+            }
+
+            const userData = await response.json();
+            renderAccountView("accountContainer", userData);
+        } catch (error) {
+            alert("Error loading account info: " + error.message);
+            renderLoginOrRegisterUI("accountContainer");
+        }
 }

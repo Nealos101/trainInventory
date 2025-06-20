@@ -68,6 +68,16 @@ def verifyToken(token: str):
     payload = jwt.decode(token, vSetting.secretKey, algorithms=vSetting.algorithm)
     return payload
 
+def createRefreshToken(data: dict):
+    refreshExpiresDelta = datetime.now(timezone.utc) + timedelta(days=vSetting.refreshTokenExpireDays)
+    toEncode = data.copy()
+    toEncode.update({"exp": refreshExpiresDelta})
+    return jwt.encode(toEncode, vSetting.secretKey, algorithm=vSetting.algorithm)
+
+def verifyToken(token: str):
+    payload = jwt.decode(token, vSetting.secretKey, algorithms=vSetting.algorithm)
+    return payload
+
 #MAIN FUNCTIONS TO RETRIEVE CURRENT USER FROM FRONT END
 async def getCurrentUser(
         token: Annotated[str, Depends(oauth2Scheme)],

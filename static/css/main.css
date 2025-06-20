@@ -121,6 +121,22 @@
     line-height: 2cap;
 }
 
+.accountManager {
+    max-width: 1000px;
+    padding: 1rem;
+    border: 2px solid #bccbe4;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgb(160, 236, 204);
+    text-align: left;
+    justify-content: left;
+    transition: border-color 0.3s ease;
+    font-family: Verdana;
+    font-size: medium;
+    color: rgb(68, 63, 63);
+    line-height: 2cap;
+}
+
 /* Main body class in the event the above classes are not applicable*/
 .mainBody {
     font-family: Verdana;
