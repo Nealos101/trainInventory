@@ -1,9 +1,12 @@
 #THIS FILE HOLDS THE DB MODELS OF THE WEB APP, THE MAIN BACKEND COMPONENTS SUPPORTING DATA EXCHANGE
 
 #NON  FASTAPI IMPORTS
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
 
-#AUTH CLASSES
+#IMPORT CLASSES
+from schemas.authSchema import Permissions, PermissionsPublic
+
+#OWNER CLASSES
 class ownerBase(SQLModel):
     name: str = Field(index=True)
     username: str
@@ -13,6 +16,8 @@ class ownerBase(SQLModel):
 class owner(ownerBase, table=True):
     ownerId: int | None = Field(default=None, primary_key=True)
     hashedPassword: str = Field()
+
+    Permissions: list["Permissions"] = Relationship(back_populates="owner")
 
 class ownerCreate(ownerBase):
     password: str

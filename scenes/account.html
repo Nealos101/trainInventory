@@ -6,28 +6,9 @@
 {% block content %}
     <h1>Your TrainWeb Account</h1>
     <p>Welcome to the nerve centre of your TrainWeb account; from here you can manage your login credentials or update your personal information.</p>
+    <p>The form below will require you to be logged in to manage your account.</p>
+    <br/>
+    <div id="accountContainer"></div><br/>
+    <div id="mainAdminContainer"></div>
+    <script src="{{ url_for('static', path='/js/account.js') }}"></script>
 {% endblock %}
-<!-- 
-<html>    
-    <head>
-        <link href="{{ url_for('static', path='/css/main.css') }}" rel="stylesheet">
-        <link href="{{ url_for('static', path='/js/routing.js') }}" rel="router">
-        <table>
-            <tr>
-                <td>
-                    <button type="button" class="headButton">My Account</button>
-                </td>
-                <td>
-                    <button type="button" class="headButton">The Inventory</button>
-                </td>
-                <td>
-                    <button type="button" class="headButton">How to Guides</button>
-                </td>
-            </tr>
-        </table>
-        <title>Your TrainWeb account</title>
-    </head>
-    <body>
-        <h1>TrainWeb Account Home</h1>
-        <p>Welcome to the nerve centre of your TrainWeb account; from here you can manage your login credentials or update your personal information.</p>
-    </body> -->
