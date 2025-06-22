@@ -58,11 +58,13 @@ function renderLoginOrRegisterForm(container) {
     container.innerHTML = `
         <div class="loginPanel">
             <h2>The account management form requires a login</h2>
+
             <form onsubmit="login(event)">
                 <input type="text" id="username" placeholder="Username" required>
                 <input type="password" id="password" placeholder="Password" required>
                 <button type="submit">Login</button>
             </form>
+
             <p>Don't have an account?</p>
             <button onclick="showRegistrationForm()">Create Account</button>
         </div>
@@ -76,29 +78,37 @@ function showRegistrationForm() {
             <h2>Create a TrainWeb Account</h2>
             <p>All data recorded in the below form will be recorded in our database. Although the admins of TrainWeb have made their best efforts to secure the site, nasty people will still try to hack in and steal the data.</p>
             <p>Therefore, the TrainWeb admins recommend you "spoof" any information you deem sensitive.</p>
-            <form onsubmit="register(event)">
-                <input type="text" id="name" placeholder="Name" required> Your full name - use this field as a means to tell us how you'd like us to identify you</input><br/>
-                <input type="text" id="newUsername" placeholder="Username" required> This isn't a secured field, so you can go basic, but it must be unique</input><br/>
-                <input type="age" id="age" placeholder="Age">  This isn't required, so leave blank or make it up if it makes you feel better</input><br/>
-                <input type="password" id="newPassword" placeholder="Password" required>  This is important and must be secured by you (if lost, you can only reset)</input><br/>
-                <button type="submit">Register</button>
-            </form>
+            
+            <div class="registerPanelForm">
+                <form onsubmit="register(event)">
+                    <input type="text" id="name" placeholder="Name" required> Your full name - use this field as a means to tell us how you'd like us to identify you</input><br/>
+                    <input type="text" id="newUsername" placeholder="Username" required> This isn't a secured field, so you can go basic, but it must be unique</input><br/>
+                    <input type="age" id="age" placeholder="Age">  This isn't required, so leave blank or make it up if it makes you feel better</input><br/>
+                    <input type="password" id="newPassword" placeholder="Password" required>  This is important and must be secured by you (if lost, you can only reset)</input><br/><br/>
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+
+            <br/>
+
             <button onclick="window.location.reload()">Back to Login</button>
         </div>
     `;
 }
 
-function renderAccountView(containerId = "accountContainer", userData) {
+function renderAccountView(containerId = "accountContainer", currentUser) {
     const container = document.getElementById(containerId);
+    const userData = currentUser.user
+
     if (!container || !userData) return;
 
     container.innerHTML = `
     <div class="accountManager">
-        <h2>Welcome, ${userData.name}</h2>
-        <p><strong>Name:</strong> ${userData.name}</p>
-        <p><strong>Username:</strong> ${userData.username}</p>
-        <p><strong>Age:</strong> ${userData.age || "N/A"}</p></b>
-        <p>Your password can be changed in the edit form</p>
+        <h2>${userData.name}'s Account</h2>
+            <p><strong>Name:</strong> ${userData.name}</p>
+            <p><strong>Username:</strong> ${userData.username}</p>
+            <p><strong>Age:</strong> ${userData.age || "N/A"}</p></b>
+            <p>Your password can be changed in the "Edit Details" form</p>
 
         <button onclick="showEditAccountForm()">Edit Details</button>
         <button onclick="deleteAccount()">Delete Account</button>
@@ -107,24 +117,30 @@ function renderAccountView(containerId = "accountContainer", userData) {
     `;
 }
 
-function showEditAccountForm() {
+async function showEditAccountForm() {
     const container = document.getElementById("accountContainer");
+    
+    try {
+        const { currentUser } = await retrieveUserDetails()
 
-    container.innerHTML = `
-        <div class="accountManager">
-            <h2>Edit Account</h2>
-            <p>Update any of your details in the form below then click "save changes" to update them.</p>
-            <p>Only filled fields will be updated.</p>
-            <form onsubmit="submitAccountChanges(event)">
-                <input type="text" id="editName" placeholder="Name"><br/>        
-                <input type="text" id="editUsername" placeholder="Username (must be unique)"><br/>
-                <input type="number" id="editAge" placeholder="Age (optional)"><br/>
-                <input type="password" id="editPassword" placeholder="New Password"><br/>
-                <button type="submit">Save Changes</button>
-            </form>
-            <button onclick="window.location.reload()">Cancel</button>
-        <div>
-    `;
+        container.innerHTML = `
+            <div class="accountManager">
+                <h2>Edit your details</h2>
+                <p>Update any of your details in the form below then click "save changes" to update them.</p>
+                <p>Only filled fields will be updated.</p>
+                <form onsubmit="submitAccountChanges(event)">
+                    <input type="text" id="editName" placeholder="${currentUser.name}"> How you'd like us to call you</input><br/>        
+                    <input type="text" id="editUsername" placeholder=${currentUser.username}> Your new one must be unique</input><br/>
+                    <input type="number" id="editAge" placeholder=${currentUser.age || "N/A"}> Not important</input><br/>
+                    <input type="password" id="editPassword" placeholder="New Password">  Passwords are secure. If lost, they must be reset (currently with an admin's help)</input><br/>
+                    <button type="submit">Save Changes</button>
+                </form><br/>
+                <button onclick="loadAccountDetails()">Cancel</button>
+            <div>
+        `;
+    } catch (error) {
+        alert("Failed to load form: " + error.message)
+    }
 }
 
 async function submitAccountChanges(event) {
@@ -148,7 +164,7 @@ async function submitAccountChanges(event) {
     }
 
     try {
-        const response = await fetch(apiUrl("/owners/me"), {
+        const response = await fetch(apiUrl("/user/me"), {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -174,6 +190,21 @@ async function deleteAccount() {
     if (!confirmDelete) return;
 
     try {
+        // FIRST ENDPOINT TO DELETE THE PERMISSIONS
+        const permResponse = await fetch(apiUrl(`/user/perm/me`), {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            }
+        });
+
+        if (!permResponse.ok) {
+            const err = await permResponse.json();
+            throw new Error(err.detail || "Failed to delete permissions");
+        }
+        
+
+        //SECOND ENDPOINT TO DELETE THE USER
         const response = await fetch(apiUrl("/user/me"), {
             method: "DELETE",
             headers: {
@@ -187,27 +218,62 @@ async function deleteAccount() {
         }
 
         alert("Account deleted.");
-        logoutUser();
+        logout();
         window.location.reload();
     } catch (error) {
         alert("Error: " + error.message);
     }
 }
 
-async function loadAccountDetails() {
-    try {
-            const response = await fetch(apiUrl(`/user/me`), {
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-                }
-            });
+async function retrieveUserDetails() {
 
-            if (!response.ok) {
-                throw new Error("Failed to load account details");
+    //CALLS THE ENDPOINT
+    const response = await fetch(apiUrl(`/user/me`), {
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to load account details");
+    }
+
+    // CAPTURE RETURNED DATA
+    const userData = await response.json();
+    const currentUser = userData.user;
+    const userPermissions = userData.permissions;
+
+    //CONSOLE LOGS THE RESPONSES
+    console.log("User:", currentUser);
+    console.log("Permissions:", userPermissions);
+
+    return {
+        currentUser,
+        userPermissions
+    };
+}
+
+async function loadAccountDetails() {
+
+    //CALLS THE ENDPOINT
+    try {
+            
+            const { currentUser, userPermissions} = await retrieveUserDetails()
+
+            //CHECKS IF THE USER IS AN ADMIN, IF SO CALLS THE ADMIN SCRIPT
+            if (userPermissions?.admin) {
+                const script = document.createElement("script");
+                script.src = "/static/js/adminFunctions.js";
+                script.type = "module"
+                document.head.appendChild(script);
             }
 
-            const userData = await response.json();
-            renderAccountView("accountContainer", userData);
+            renderAccountView(
+                "accountContainer", {
+                    user: currentUser
+                }
+            );
+
         } catch (error) {
             alert("Error loading account info: " + error.message);
             renderLoginOrRegisterUI("accountContainer");

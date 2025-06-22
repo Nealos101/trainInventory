@@ -4,7 +4,7 @@
 from sqlmodel import Field, SQLModel, Relationship
 
 #IMPORT CLASSES
-from schemas.authSchema import Permissions
+from schemas.authSchema import Permissions, PermissionsPublic
 
 #OWNER CLASSES
 class ownerBase(SQLModel):

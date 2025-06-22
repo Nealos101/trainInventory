@@ -121,6 +121,31 @@
     line-height: 2cap;
 }
 
+    .registerPanel button {
+        padding: 5px 7px;
+        border-radius: 0.5cap;
+        background-color: #d8ffed;
+        color: rgb(65, 57, 59);
+        font-weight: bolder;
+        cursor: pointer;
+    }
+
+    .registerPanelForm {
+        max-width: 1000px;
+        padding: 1rem;
+        border: 2px solid #bccbe4;
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: rgb(183, 255, 207);
+        text-align: left;
+        justify-content: left;
+        transition: border-color 0.3s ease;
+        font-family: Verdana;
+        font-size: medium;
+        color: rgb(41, 36, 36);
+        line-height: 2cap;
+    }
+
 .accountManager {
     max-width: 1000px;
     padding: 1rem;
@@ -136,6 +161,137 @@
     color: rgb(68, 63, 63);
     line-height: 2cap;
 }
+
+    .accountManager button {
+        padding: 5px 7px;
+        border-radius: 0.5cap;
+        background-color: #d3e2fa;
+        color: rgb(75, 83, 85);
+        font-weight: bolder;
+        cursor: pointer;
+    }
+
+.mainAdminContainer {
+    max-width: 1000px;
+    padding: 1rem;
+    border: 2px solid #bccbe4;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgb(236, 160, 166);
+    text-align: left;
+    justify-content: left;
+    transition: border-color 0.3s ease;
+    font-family: Verdana;
+    font-size: medium;
+    color: rgb(36, 33, 33);
+    line-height: 2cap;
+}
+
+    .mainAdminContainer button {
+        padding: 5px 7px;
+        border-radius: 0.5cap;
+        background-color: #d8ffed;
+        color: rgb(65, 57, 59);
+        font-weight: bolder;
+        cursor: pointer;
+    }
+
+    /* These appear within the mainAdminContainer */
+    
+    .subAdminDetailsContainer {
+    max-width: 1000px;
+    padding: 1rem;
+    border: 2px solid #bccbe4;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgb(186, 223, 229);
+    text-align: left;
+    justify-content: left;
+    transition: border-color 0.3s ease;
+    font-family: Verdana;
+    font-size: medium;
+    color: rgb(36, 33, 33);
+    line-height: 2cap;
+    }
+
+    .subAdminPermContainer {
+    max-width: 1000px;
+    padding: 1rem;
+    border: 2px solid #bccbe4;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgb(219, 186, 229);
+    text-align: left;
+    justify-content: left;
+    transition: border-color 0.3s ease;
+    font-family: Verdana;
+    font-size: medium;
+    color: rgb(36, 33, 33);
+    line-height: 2cap;
+    }
+
+    .subAdminDeleteContainer {
+    max-width: 1000px;
+    padding: 1rem;
+    border: 2px solid #bccbe4;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgb(59, 10, 10);
+    text-align: left;
+    justify-content: left;
+    transition: border-color 0.3s ease;
+    font-family: Verdana;
+    font-size: medium;
+    color: rgb(255, 211, 211);
+    line-height: 2cap;
+    }
+    
+        .subAdminDeleteContainer button {
+        padding: 5px 7px;
+        border-radius: 0.5cap;
+        background-color: red;
+        color: rgb(255, 216, 216);
+        font-weight: bolder;
+        cursor: pointer;            
+        }
+
+    .usersTable {
+        max-width: 1000px;
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #bccbe4;
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: rgb(236, 160, 166);
+        text-align: left;
+        justify-content: left;
+        transition: border-color 0.3s ease;
+        font-family: Verdana;
+        font-size: medium;
+        color: rgb(36, 33, 33);
+        line-height: 2cap;
+        border-collapse: collapse;
+    }
+
+        .usersTable th, .usersTable td {
+            border: 1px solid #ccc;
+            background-color: #e2eaf7;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .usersTable th {
+            background-color: #c4d6f3;
+        }
+
+        .usersTable button {
+            padding: 5px 7px;
+            border-radius: 0.5cap;
+            background-color: #d8ffed;
+            color: rgb(65, 57, 59);
+            font-weight: bolder;
+            cursor: pointer;
+        }
 
 /* Main body class in the event the above classes are not applicable*/
 .mainBody {

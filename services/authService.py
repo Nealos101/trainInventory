@@ -144,3 +144,7 @@ def assignDefaultPermissions(session: Session, ownerId: int):
     )
     session.add(defaultPerms)
     session.commit()
+
+def isAdmin(session: Session, ownerId: int) -> bool:
+    permissions = session.query(vAuthSchema.Permissions).filter_by(ownerId=ownerId).first()
+    return permissions.admin if permissions else False
