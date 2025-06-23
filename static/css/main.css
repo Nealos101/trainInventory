@@ -171,6 +171,22 @@
         cursor: pointer;
     }
 
+    .accountManageFields {
+        max-width: 1000px;
+        padding: 1rem;
+        border: 2px solid #bccbe4;
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: rgb(197, 204, 238);
+        text-align: left;
+        justify-content: left;
+        transition: border-color 0.3s ease;
+        font-family: Verdana;
+        font-size: medium;
+        color: rgb(49, 49, 53);
+        line-height: 2cap;
+    }
+
 .mainAdminContainer {
     max-width: 1000px;
     padding: 1rem;

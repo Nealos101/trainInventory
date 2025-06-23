@@ -27,8 +27,22 @@ function renderLoginUI() {
     return `
         <div class="loginBar">
             <form onsubmit="login(event)">
-                <input type="text" id="username" placeholder="Username" required>
-                <input type="password" id="password" placeholder="Password" required>
+                <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    placeholder="Username"
+                    autocomplete="username"
+                    required
+                >
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    required
+                >
                 <button type="submit">Login</button>
             </form>
         </div>

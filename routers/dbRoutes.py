@@ -1,4 +1,4 @@
-#THIS FILE HOLDS THE DB ROUTERS OF THE WEB APP, THE MAIN BACKEND COMPONENTS SUPPORTING DATA EXCHANGE
+#THIS FILE HOLDS THE OWNERS AND USER DB ROUTERS OF THE WEB APP, THE MAIN BACKEND COMPONENTS SUPPORTING DATA EXCHANGE
 
 #MAIN FASTAPI IMPORTS
 from fastapi import Depends, HTTPException, Query, APIRouter, status
@@ -28,6 +28,7 @@ routerUser = APIRouter(
     tags=["user"]
 )
 
+#OWNER ROUTERS
 @routerOwners.post("/", response_model=vDbSchema.ownerPublic)
 def create_an_account(
     *,
@@ -84,30 +85,6 @@ def fetch_an_account(
         raise HTTPException(status_code=403, detail="Not authorized to access this owner")   
     
     return owner
-
-@routerUser.get("/me")
-def fetch_my_account(
-    *,
-    session: Session = Depends(vDbService.getSession),
-    currentUser: vDbSchema.owner = Depends(vAuthService.getCurrentActiveUser)
-):
-    
-    permissions = (
-        session.query(vAuthSchema.Permissions)
-        .filter_by(ownerId=currentUser.ownerId)
-        .first()
-    )
-
-    if not permissions:
-        raise HTTPException(status_code=404, detail="Permissions not found")
-
-    return {
-        "user": currentUser,
-        "permissions": {
-            "readOnly": permissions.readOnly,
-            "ownerPerm": permissions.ownerPerm,
-            "admin": permissions.admin}
-    }
 
 @routerOwners.patch("/admin/{ownerId}", response_model=vDbSchema.ownerPublic)
 def update_an_account(
@@ -169,6 +146,61 @@ def read_an_account(
             "admin": permissions.admin}
     }
 
+@routerOwners.delete("/{ownerId}")
+def delete_an_owner(
+    *,
+    ownerPerm: vDbSchema.owner = Depends(vAuthService.requireAnyPermission("admin")),
+    session: Session = Depends(vDbService.getSession), ownerId: int,
+    currentUser: vDbSchema.owner = Depends(vAuthService.getCurrentActiveUser)
+):
+    
+    # TO SEE IF OWNER EXISTS (BACKEND PROTECTION LOGIC)
+    owner = session.get(vDbSchema.owner, ownerId)
+    if not owner:
+        raise HTTPException(status_code=404, detail="owner not found")
+    
+    # TO STOP FELLOW ADMIN DELETE
+    targetPermissions = (
+        session.query(vAuthSchema.Permissions)
+        .filter_by(ownerId=ownerId)
+        .first()
+    )
+
+    if targetPermissions and targetPermissions.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="You cannot delete a user with admin priviledges."
+        )
+
+    session.delete(owner)
+    session.commit()
+    return {"ok": True}
+
+#USER ROUTERS
+@routerUser.get("/me")
+def fetch_my_account(
+    *,
+    session: Session = Depends(vDbService.getSession),
+    currentUser: vDbSchema.owner = Depends(vAuthService.getCurrentActiveUser)
+):
+    
+    permissions = (
+        session.query(vAuthSchema.Permissions)
+        .filter_by(ownerId=currentUser.ownerId)
+        .first()
+    )
+
+    if not permissions:
+        raise HTTPException(status_code=404, detail="Permissions not found")
+
+    return {
+        "user": currentUser,
+        "permissions": {
+            "readOnly": permissions.readOnly,
+            "ownerPerm": permissions.ownerPerm,
+            "admin": permissions.admin}
+    }
+
 @routerUser.patch("/me", response_model=vDbSchema.ownerPublic)
 def update_my_account(
     *,
@@ -213,36 +245,6 @@ def update_my_account(
     session.refresh(dbOwner)
     return dbOwner
 
-@routerOwners.delete("/{ownerId}")
-def delete_an_owner(
-    *,
-    ownerPerm: vDbSchema.owner = Depends(vAuthService.requireAnyPermission("admin")),
-    session: Session = Depends(vDbService.getSession), ownerId: int,
-    currentUser: vDbSchema.owner = Depends(vAuthService.getCurrentActiveUser)
-):
-    
-    # TO SEE IF OWNER EXISTS (BACKEND PROTECTION LOGIC)
-    owner = session.get(vDbSchema.owner, ownerId)
-    if not owner:
-        raise HTTPException(status_code=404, detail="owner not found")
-    
-    # TO STOP FELLOW ADMIN DELETE
-    targetPermissions = (
-        session.query(vAuthSchema.Permissions)
-        .filter_by(ownerId=ownerId)
-        .first()
-    )
-
-    if targetPermissions and targetPermissions.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="You cannot delete a user with admin priviledges."
-        )
-
-    session.delete(owner)
-    session.commit()
-    return {"ok": True}
-
 @routerUser.delete("/me")
 def delete_my_account(
     *,
@@ -253,37 +255,6 @@ def delete_my_account(
     if not owner:
         raise HTTPException(status_code=404, detail="owner not found")
     
-    session.delete(owner)
-    session.commit()
-    return {"ok": True}
-
-
-@routerOwners.delete("/{ownerId}")
-def delete_an_account(
-    *,
-    ownerPerm: vDbSchema.owner = Depends(vAuthService.requireAnyPermission("admin")),
-    session: Session = Depends(vDbService.getSession), ownerId: int,
-    currentUser: vDbSchema.owner = Depends(vAuthService.getCurrentActiveUser)
-):
-    
-    # TO SEE IF OWNER EXISTS (BACKEND PROTECTION LOGIC)
-    owner = session.get(vDbSchema.owner, ownerId)
-    if not owner:
-        raise HTTPException(status_code=404, detail="owner not found")
-    
-    # TO STOP FELLOW ADMIN DELETE
-    targetPermissions = (
-        session.query(vAuthSchema.Permissions)
-        .filter_by(ownerId=ownerId)
-        .first()
-    )
-
-    if targetPermissions and targetPermissions.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="You cannot delete a user with admin priviledges."
-        )
-
     session.delete(owner)
     session.commit()
     return {"ok": True}
