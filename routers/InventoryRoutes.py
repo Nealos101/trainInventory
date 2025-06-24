@@ -1,10 +1,11 @@
 #THIS FILE HOLDS THE INVENTORY DB ROUTERS OF THE WEB APP, THE MAIN BACKEND COMPONENTS SUPPORTING THE CORE FUNCTIONS OF THE WEB APP
 
 #MAIN FASTAPI IMPORTS
-from fastapi import Depends, HTTPException, Query, APIRouter, status
+from fastapi import Depends, HTTPException, APIRouter
 
 #NON  FASTAPI IMPORTS
 from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
 
 #IMPORT FILES
 from core import security
@@ -117,9 +118,19 @@ def create_an_inventory_record(
     
     #CREATES THE INVENTORY
     dbInv = vDbSchema.Inventory.model_validate(inventory)
-    session.add(dbInv)
-    session.commit()
-    session.refresh(dbInv)
+
+    try:
+        session.add(dbInv)
+        session.commit()
+        session.refresh(dbInv)
+    except IntegrityError as e:
+        session.rollback()
+        print(f"IntegrityError: {e.orig}")
+        raise HTTPException(
+            status_code=500,
+            detail="A database integrity error occurred."
+        )
+    
     return vDbSchema.InventoryPublic.model_validate(dbInv)
 
 @routerInv.patch("/{ownerId}/{invId}", response_model=vDbSchema.InventoryPublic)

@@ -158,7 +158,8 @@ async function loadedInventoryLanding(container, invData, invOwner) {
 
                 const invDetails = await response.json();
 
-                return console.log("Details returned:", invDetails);
+                // LOAD THE PAGE
+                return inventoryRecordPage(container, invDetails, invOwner);
 
             } catch (error) {
                 console.error("Record load failed, info: ", error.message);
@@ -166,6 +167,115 @@ async function loadedInventoryLanding(container, invData, invOwner) {
         });
     });
 }
+
+function inventoryRecordPage(container, invDetails, invOwner) {
+    
+    container.innerHTML =`
+        <div class="inventoryContainer" data-inv-owner="${invOwner}">
+
+            <h2>About ${invDetails.clientId}, a ${invDetails.stockName}</h2>
+
+            <div class="invAddRequired">
+
+                <h3>Main Identifiers</h3>
+
+                <table class="inventoryTable">
+                    <tr>
+                        <th>Your Stock Id</th>
+                        <td>${invDetails.clientId}</td>
+                    </tr>
+                    <tr>
+                        <th>Stock Name</th>
+                        <td>${invDetails.stockName}</td>
+                    </tr>
+                    <tr>
+                        <th>Road Number</th>
+                        <td>${invDetails.stockRoadNumber}</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>${invDetails.stockType}</td>
+                    </tr>
+                </table>
+
+            </div>
+
+            <div class="invAddOptional">
+
+                <h3>Additional Details</h3>
+
+                <h4>Supporting Information</h4>
+
+                <table class="inventoryTable">
+                    <tr>
+                        <th>Brand</th>
+                        <td>${invDetails.stockBrand}</td>
+                    </tr>
+                    <tr>
+                        <th>Railroad</th>
+                        <td>${invDetails.stockRailroad}</td>
+                    </tr>
+                   <tr>
+                        <th>Livery</th>
+                        <td>${invDetails.stockLivery}</td>
+                    </tr>
+                   <tr>
+                        <th>Purchase Price</th>
+                        <td>£${invDetails.purchaseCost}</td>
+                    </tr>
+                    <tr>
+                        <th>Purchase Date</th>
+                        <td>${invDetails.purchaseDate}</td>
+                    </tr>
+                    <tr>
+                        <th>Comments and Notes</th>
+                        <td>${invDetails.stockComments}</td>
+                    </tr>
+                </table>
+
+                <h4>Materials and Power</h4>
+
+                <table class="inventoryTable">
+                    <tr>
+                        <th>Power</th>
+                        <td>${invDetails.stockPower}</td>
+                    </tr>
+                    <tr>
+                        <th>Wheels</th>
+                        <td>${invDetails.stockWheelType}</td>
+                    </tr>
+                    <tr>
+                        <th>Couplers</th>
+                        <td>${invDetails.stockCouplerType}</td>
+                    </tr>
+                </table>
+
+                <h4>Prototype tracking</h4>
+
+                <table class="inventoryTable">
+                    <tr>
+                        <th>Prototype Start Date</th>
+                        <td>${invDetails.prototypeStart}</td>
+                    </tr>
+                    <tr>
+                        <th>Prototype Removal Date</th>
+                        <td>${invDetails.prototypeEnd}</td>
+                    </tr>
+                </table>
+
+            </div>
+
+            <br/>
+
+            <button id="cancelGoInvButt">Cancel</button>
+
+        </div>
+    `;
+
+    attachCancelListener("cancelGoInvButt", container);
+
+}
+
 
 function unloadedInventoryLanding(container, invOwner) {
 
@@ -446,6 +556,13 @@ function populateDropdownsFromConfig(container, config, placeholder = "Please se
     });
 }
 
+// REUSABLE FUNCTION TO ENSURE SELECT ELEMENTS DON'T HAVE THE PLACEHOLDER
+function isMeaningfulSelect(element) {
+    if (element.tagName !== "SELECT") return true;
+    const selectedOption = element.options[element.selectedIndex];
+    return !selectedOption.disabled;
+}
+
 async function generateInvRecord(event) {
     event.preventDefault();
     
@@ -468,23 +585,23 @@ async function generateInvRecord(event) {
     ];
 
     optionalFields.forEach((fieldId) => {
-        const value = document.getElementById(fieldId).value.trim();
-        if (value !== "") {
+        const element = document.getElementById(fieldId);
+        if (!element) return;
+
+        const value = element.value;
+
+
+        // EXCLUDES OPTIONAL FIELDS IF THEY ARE EMPTY
+        if (
+            isMeaningfulSelect(element) && //CALLS THE RE-USABLE FUNCTION FOR SELECT FIELDS
+            value !== undefined &&
+            value !== null &&
+            value.trim?.() !== "" //CHECKS FOR SPACES IN STRINGS, TRIMS THEM TO EXCLUDE
+        ) {
             payload[fieldId] = value;
         }
     });
 
-    // const stockRoadNumber = document.getElementById("stockRoadNumber").value.trim();
-    // const stockRailroad = document.getElementById("stockRailroad").value.trim();
-    // const stockLivery = document.getElementById("stockLivery").value.trim();
-    // const stockPower = document.getElementById("stockPower").value;
-    // const purchaseCost = document.getElementById("purchaseCost").value;
-    // const purchaseDate = document.getElementById("purchaseDate").value;
-    // const stockWheelType = document.getElementById("stockWheelType").value;
-    // const stockCouplerType = document.getElementById("stockCouplerType").value;
-    // const stockComments = document.getElementById("stockComments").value.trim();
-    // const prototypeStart = document.getElementById("prototypeStart").value;
-    // const prototypeEnd = document.getElementById("prototypeEnd").value;
 
     try {
         const response = await fetch(apiUrl("/inventory"), {
@@ -507,3 +624,4 @@ async function generateInvRecord(event) {
         alert("Error: " + error.message);
     }
 }
+
