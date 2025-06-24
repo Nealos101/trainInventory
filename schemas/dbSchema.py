@@ -81,23 +81,27 @@ class stockClass(str, Enum):
 
 #DB INVENTORY TABLE CLASSES
 class InventoryBase(SQLModel):
+
+    #REQUIRED FIELDS
     clientId: str = Field(index=True)
-    stockBrand: str
     stockType: stockClass
     stockName: str
     stockRoadNumber: str = Field(index=True)
-    stockrailroad: str
-    stocklivery: str
-    stockpower: powerClass
-    purchaseCost: float
-    purchasedate: date
-    stockWheelType: wheelType
-    stockCouplerType: couplerType
-    stockComments: str
 
+    #OPTIONAL FIELDS
+    stockBrand: Optional[str] = None
+    stockRailroad: Optional[str] = None
+    stockLivery: Optional[str] = None
+    stockPower: Optional[powerClass] = None
+    purchaseCost: Optional[float] = None
+    purchaseDate: Optional[date] = None
+    stockWheelType: Optional[wheelType] = None
+    stockCouplerType: Optional[couplerType] = None
+    stockComments: Optional[str] = None
     prototypeStart: Optional[date] = Field(default=None, index=True)
     prototypeEnd: Optional[date] = Field(default=None, index=True)
 
+    #RELATIONSHIP
     ownerId: Optional[int] = Field(default=None, foreign_key="owner.ownerId")
 
 class Inventory(InventoryBase, table=True):

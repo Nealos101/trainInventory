@@ -33,7 +33,8 @@ for vBaseRoute in [
     vBaseRoute.routerInventory,
     vBaseRoute.routerAccount,
     vBaseRoute.routerHelp,
-    vBaseRoute.routerGuides
+    vBaseRoute.routerGuides,
+    vBaseRoute.routerEnum
 
 ]:
     app.include_router(vBaseRoute)

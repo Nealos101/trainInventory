@@ -156,6 +156,34 @@ async function authFetch(url, options = {}) {
     return response;
 }
 
+async function retrieveUserDetails() {
+
+    //CALLS THE ENDPOINT
+    const response = await fetch(apiUrl(`/user/me`), {
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to load account details");
+    }
+
+    // CAPTURE RETURNED DATA
+    const userData = await response.json();
+    const currentUser = userData.user;
+    const userPermissions = userData.permissions;
+
+    //CONSOLE LOGS THE RESPONSES
+    console.log("User:", currentUser);
+    console.log("Permissions:", userPermissions);
+
+    return {
+        currentUser,
+        userPermissions
+    };
+}
+
 window.onload = function () {
     const accountContainer = document.getElementById("accountContainer");
 

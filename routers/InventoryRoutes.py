@@ -35,7 +35,7 @@ def fetch_all_inventory(
     inventory = session.exec(select(vDbSchema.Inventory).offset(offset))
     return inventory
 
-@routerInv.get("/{ownerId}", response_model=vDbSchema.InventoryPublic)
+@routerInv.get("/{ownerId}", response_model=list[vDbSchema.InventoryPublic])
 def fetch_an_inventory(
     *,
     ownerPerm: vDbSchema.owner = Depends(vAuthService.requireAnyPermission("readOnly", "ownerPerm", "admin")),
@@ -43,12 +43,12 @@ def fetch_an_inventory(
     ownerId: int,
     currentUser: vDbSchema.owner = Depends(vAuthService.getCurrentActiveUser)
 ):
-    inventory = session.get(vDbSchema.Inventory, ownerId)
+    inventory = session.query(vDbSchema.Inventory).filter_by(ownerId=ownerId).all()
     permissionOwner = vAuthService.isAdmin(session, currentUser.ownerId)
 
     if not inventory:
         raise HTTPException(status_code=404, detail="Inventory not found")
-    if not (inventory.ownerId == currentUser.ownerId or permissionOwner):
+    if not (all(item.ownerId == currentUser.ownerId for item in inventory) or permissionOwner):
         raise HTTPException(status_code=403, detail="Not authorized to access this Inventory")   
     
     return inventory
@@ -194,7 +194,7 @@ def update_an_inventory_record(
     return vDbSchema.InventoryPublic.model_validate(dbInv)
 
 @routerInv.delete("/{ownerId}/{invId}")
-def delete_an_owner(
+def delete_an_inventory_record(
     *,
     ownerPerm: vDbSchema.owner = Depends(vAuthService.requireAnyPermission("ownerPerm", "admin")),
     session: Session = Depends(vDbService.getSession),

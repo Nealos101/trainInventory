@@ -309,6 +309,130 @@
             cursor: pointer;
         }
 
+.inventoryContainer {
+    max-width: 1000px;
+    padding: 1rem;
+    border: 2px solid #bccbe4;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgb(187, 160, 236);
+    text-align: left;
+    justify-content: left;
+    transition: border-color 0.3s ease;
+    font-family: Verdana;
+    font-size: medium;
+    color: rgb(23, 26, 25);
+    line-height: 2cap;
+}
+
+    .createRecordForm {
+        max-width: 1000px;
+        padding: 1rem;
+        border: 2px solid #bccbe4;
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: rgb(160, 199, 236);
+        text-align: left;
+        justify-content: left;
+        transition: border-color 0.3s ease;
+        font-family: Verdana;
+        font-size: medium;
+        color: rgb(23, 26, 25);
+        line-height: 2cap;
+    }
+
+        .createRecordForm input, .createRecordForm select {
+            width: 300px;
+            height: 18px;
+            margin-bottom: 5px;
+        }
+
+        .createRecordForm #stockComments {
+            width: 300px;
+            height: 50px;
+            resize: none;
+        }
+
+        .invAddRequired {
+            max-width: 1000px;
+            padding: 1rem;
+            border: 2px solid #bccbe4;
+            border-radius: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgb(255, 209, 209);
+            text-align: left;
+            justify-content: left;
+            transition: border-color 0.3s ease;
+            font-family: Verdana;
+            font-size: medium;
+            color: rgb(23, 26, 25);
+            line-height: 2cap;
+        }
+
+       .invAddOptional {
+            max-width: 1000px;
+            padding: 1rem;
+            border: 2px solid #bccbe4;
+            border-radius: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgb(203, 255, 192);
+            text-align: left;
+            justify-content: left;
+            transition: border-color 0.3s ease;
+            font-family: Verdana;
+            font-size: medium;
+            color: rgb(23, 26, 25);
+            line-height: 2cap;
+        }
+
+    .inventoryContainer button {
+        padding: 5px 7px;
+        border-radius: 0.5cap;
+        background-color: #d8ffed;
+        color: rgb(65, 57, 59);
+        font-weight: bolder;
+        cursor: pointer;        
+    }
+
+    .inventoryTable {
+        max-width: 1000px;
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #bccbe4;
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: rgb(236, 160, 166);
+        text-align: left;
+        justify-content: left;
+        transition: border-color 0.3s ease;
+        font-family: Verdana;
+        font-size: medium;
+        color: rgb(36, 33, 33);
+        line-height: 2cap;
+        border-collapse: collapse;        
+    }
+
+        .inventoryTable th, .inventoryTable td {
+            border: 1px solid #ccc;
+            background-color: #e2eaf7;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: small;
+        }
+
+        .inventoryTable th {
+            background-color: #c4d6f3;
+        }
+
+        .inventoryTable button {
+            padding: 5px 7px;
+            border-radius: 0.5cap;
+            background-color: #d8ffed;
+            color: rgb(65, 57, 59);
+            font-weight: bolder;
+            cursor: pointer;
+        }
+
 /* Main body class in the event the above classes are not applicable*/
 .mainBody {
     font-family: Verdana;
