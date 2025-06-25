@@ -4,6 +4,7 @@
 from fastapi import Depends, HTTPException
 
 #NON  FASTAPI IMPORTS
+import os
 from sqlmodel import Session, SQLModel, create_engine, select
 from typing import Annotated, Optional
 
@@ -14,11 +15,10 @@ from schemas import dbSchema
 vDbSchemas = dbSchema
 
 #SQL MODEL
-sqliteFileName = "database.db"
-sqliteUrl = f"sqlite:///{sqliteFileName}"
+databaseUrl = os.getenv("databaseUrl")
 
 connectArgs = {"check_same_thread": False}
-engine = create_engine(sqliteUrl, connect_args=connectArgs)
+engine = create_engine(databaseUrl, connect_args=connectArgs)
 
 def createDbAndTables():
     SQLModel.metadata.create_all(engine)
