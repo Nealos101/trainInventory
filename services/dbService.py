@@ -17,8 +17,7 @@ vDbSchemas = dbSchema
 #SQL MODEL
 databaseUrl = os.getenv("databaseUrl")
 
-connectArgs = {"check_same_thread": False}
-engine = create_engine(databaseUrl, connect_args=connectArgs)
+engine = create_engine(databaseUrl, echo=True)
 
 def createDbAndTables():
     SQLModel.metadata.create_all(engine)
