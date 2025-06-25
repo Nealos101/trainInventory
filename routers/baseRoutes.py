@@ -43,7 +43,7 @@ routerEnum = APIRouter(
     tags=["enum"]
 )
 
-baseDir = Path(___file___).resolve().parent
+baseDir = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(baseDir / "scenes"))
 
 #ROUTES
