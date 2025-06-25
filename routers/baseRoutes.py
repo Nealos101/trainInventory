@@ -7,10 +7,10 @@ from fastapi import APIRouter
 #SUBCORE IMPORTS
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from pathlib import Path
 
 #IMPORT CLASSES
 from schemas import dbSchema
+from pathlib import Path
 
 #IMPORT FILES VARIABLE BRIDGES
 vDbSchemas = dbSchema
@@ -43,8 +43,8 @@ routerEnum = APIRouter(
     tags=["enum"]
 )
 
-baseDir = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=str(baseDir / "scenes"))
+baseDir = Path(__file__).resolve().parent.parent
+templates = Jinja2Templates(directory=baseDir / "scenes")
 
 #ROUTES
 @routerHome.get("/", response_class=HTMLResponse)
