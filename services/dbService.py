@@ -15,10 +15,10 @@ vDbSchemas = dbSchema
 
 #SQL MODEL
 sqliteFileName = "database.db"
-sqliteErl = f"sqlite:///{sqliteFileName}"
+sqliteUrl = f"sqlite:///{sqliteFileName}"
 
 connectArgs = {"check_same_thread": False}
-engine = create_engine(sqliteErl, connect_args=connectArgs)
+engine = create_engine(sqliteUrl, connect_args=connectArgs)
 
 def createDbAndTables():
     SQLModel.metadata.create_all(engine)
