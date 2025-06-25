@@ -32,6 +32,15 @@
             <p>Use the navigation buttons in the header to access your inventory, manage your account, or acess the help article on how to setup and manage your very own TrainWeb Inventory!</p>
         {% endblock %}
         </div>
+        
+        <div id="sessionModal" class="modal-overlay">
+            <div class="modal-box">
+                <h2>Session Expired</h2>
+                <p>Your session has expired. Please log in again.</p>
+                <button id="modalLoginBtn">Go to Login</button>
+            </div>
+        </div>
     </body>
+    
     <script src="{{ url_for('static', path='/js/router.js') }}"></script>
 </html>

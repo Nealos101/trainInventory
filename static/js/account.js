@@ -234,7 +234,6 @@ async function submitAccountChanges(event) {
     const username = document.getElementById("editUsername").value.trim();
     const age = document.getElementById("editAge").value.trim();
     const password = document.getElementById("editPassword").value.trim();
-
    
     const body = {};
         if (name) body.name = name;
@@ -248,7 +247,7 @@ async function submitAccountChanges(event) {
     }
 
     try {
-        const response = await fetch(apiUrl("/user/me"), {
+        const response = await authFetch(apiUrl("/user/me"), {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -275,7 +274,7 @@ async function deleteAccount() {
 
     try {
         // FIRST ENDPOINT TO DELETE THE PERMISSIONS
-        const permResponse = await fetch(apiUrl(`/user/perm/me`), {
+        const permResponse = await authFetch(apiUrl(`/user/perm/me`), {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -289,7 +288,7 @@ async function deleteAccount() {
         
 
         //SECOND ENDPOINT TO DELETE THE USER
-        const response = await fetch(apiUrl("/user/me"), {
+        const response = await authFetch(apiUrl("/user/me"), {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`

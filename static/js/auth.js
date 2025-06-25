@@ -118,7 +118,7 @@ function logout() {
 }
 
 async function refreshAccessToken() {
-    const response = await fetch(apiUrl("/refresh-token"), {
+    const response = await fetch(apiUrl("/refreshToken"), {
         method: "POST",
         credentials: "include"
     });
@@ -134,11 +134,21 @@ async function refreshAccessToken() {
     }
 }
 
+function showSessionExpiredModal() {
+    const modal = document.getElementById("sessionModal");
+    modal.style.display = "flex"; // CSS TO TOGGLE VISIBILITY
+
+    const button = document.getElementById("modalLoginBtn");
+    button.onclick = () => {
+        window.location.reload;
+    };
+}
+
 async function authFetch(url, options = {}) {
     options.headers = options.headers || {};
     options.headers["Authorization"] = `Bearer ${localStorage.getItem("accessToken")}`;
 
-    let response = await fetch(apiUrl(url), options);
+    let response = await fetch(url, options);
 
     if (response.status === 401) {
         // TRY REFRESH
@@ -146,10 +156,13 @@ async function authFetch(url, options = {}) {
         if (refreshed) {
             // RETRY THE ORIGINAL REQUEST WITH A NEW TOKEN
             options.headers["Authorization"] = `Bearer ${localStorage.getItem("accessToken")}`;
-            response = await fetch(apiUrl(url), options);
+            response = await fetch(url, options);
         } else {
             // WHEN IT FAILS
-            throw new Error("Unauthorized");
+            console.warn("Session expired. Redirecting to login.");
+            showSessionExpiredModal();
+            window.location.href = "/account";
+            return;
         }
     }
 
@@ -159,7 +172,7 @@ async function authFetch(url, options = {}) {
 async function retrieveUserDetails() {
 
     //CALLS THE ENDPOINT
-    const response = await fetch(apiUrl(`/user/me`), {
+    const response = await authFetch(apiUrl(`/user/me`), {
         headers: {
             "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
         }
@@ -175,8 +188,8 @@ async function retrieveUserDetails() {
     const userPermissions = userData.permissions;
 
     //CONSOLE LOGS THE RESPONSES
-    console.log("User:", currentUser);
-    console.log("Permissions:", userPermissions);
+    // console.log("User:", currentUser);
+    // console.log("Permissions:", userPermissions);
 
     return {
         currentUser,
