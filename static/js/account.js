@@ -60,8 +60,22 @@ function renderLoginOrRegisterForm(container) {
             <h2>The account management form requires a login</h2>
 
             <form onsubmit="login(event)">
-                <input type="text" id="username" placeholder="Username" required>
-                <input type="password" id="password" placeholder="Password" required>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    autocomplete="username"
+                    placeholder="Username"
+                    required
+                >
+                <input 
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="current-password"
+                    placeholder="Password"
+                    required
+                >
                 <button type="submit">Login</button>
             </form>
 
@@ -81,10 +95,44 @@ function showRegistrationForm() {
             
             <div class="registerPanelForm">
                 <form onsubmit="register(event)">
-                    <input type="text" id="name" placeholder="Name" required> Your full name - use this field as a means to tell us how you'd like us to identify you</input><br/>
-                    <input type="text" id="newUsername" placeholder="Username" required> This isn't a secured field, so you can go basic, but it must be unique</input><br/>
-                    <input type="age" id="age" placeholder="Age">  This isn't required, so leave blank or make it up if it makes you feel better</input><br/>
-                    <input type="password" id="newPassword" placeholder="Password" required>  This is important and must be secured by you (if lost, you can only reset)</input><br/><br/>
+                        <input
+                            type="text"
+                            id="name"
+                            placeholder="Name"
+                            required
+                        >
+                    <label for "name"> Your full name - use this field as a means to tell us how you'd like us to identify you</label><br/>
+
+                        <input 
+                            type="text"
+                            id="newUsername"
+                            name="username"
+                            placeholder="Username"
+                            autocomplete="username"
+                            required
+                        >
+                    <label for "newUsername"> This isn't a secured field, so you can go basic, but it must be unique</label>
+                        <br/>
+
+                        <input
+                            type="age"
+                            id="age"
+                            placeholder="Age"
+                        >
+                    <label for "age"> This isn't required, so leave blank or make it up if it makes you feel better</label>
+                        <br/>
+
+                        <input
+                            type="password"
+                            id="newPassword"
+                            name="password"
+                            placeholder="Password"
+                            autocomplete="new-password"
+                            required
+                        >
+                    <label for "newPassword"> This is important and must be secured by you (if lost, you can only reset)</label>
+                        <br/><br/>
+
                     <button type="submit">Register</button>
                 </form>
             </div>
@@ -111,7 +159,7 @@ function renderAccountView(containerId = "accountContainer", currentUser) {
             <p>Your password can be changed in the "Edit Details" form</p>
 
         <button onclick="showEditAccountForm()">Edit Details</button>
-        <button onclick="deleteAccount()">Delete Account</button>
+        <!-- <button onclick="deleteAccount()">Delete Account</button> -->
         <button onclick="logout()">Logout</button>
     </div>
     `;
@@ -128,13 +176,49 @@ async function showEditAccountForm() {
                 <h2>Edit your details</h2>
                 <p>Update any of your details in the form below then click "save changes" to update them.</p>
                 <p>Only filled fields will be updated.</p>
-                <form onsubmit="submitAccountChanges(event)">
-                    <input type="text" id="editName" placeholder="${currentUser.name}"> How you'd like us to call you</input><br/>        
-                    <input type="text" id="editUsername" placeholder=${currentUser.username}> Your new one must be unique</input><br/>
-                    <input type="number" id="editAge" placeholder=${currentUser.age || "N/A"}> Not important</input><br/>
-                    <input type="password" id="editPassword" placeholder="New Password">  Passwords are secure. If lost, they must be reset (currently with an admin's help)</input><br/>
-                    <button type="submit">Save Changes</button>
-                </form><br/>
+
+                <div class="accountManageFields">
+                    <form onsubmit="submitAccountChanges(event)">
+                            <input
+                                type="text"
+                                id="editName"
+                                placeholder="${currentUser.name}"
+                            >
+                        <label for "editName"> How you'd like us to call you</label>
+                        <br/>
+
+                            <input
+                                type="text"
+                                id="editUsername"
+                                placeholder=${currentUser.username}
+                            >
+                        <label for "editUsername"> Your new one must be unique</label>
+                        <br/>
+
+                        <input
+                                type="number"
+                                id="editAge"
+                                placeholder=${currentUser.age || "N/A"}
+                            >
+                        <label for "editAge"> Not important</label>
+                        <br/>
+
+                            <input
+                                type="password"
+                                id="editPassword"
+                                name="password"
+                                placeholder="New Password"
+                                autocomplete="new-password"
+                            >
+                        <label for "editPassword"> Passwords are secure. If lost, they must be reset (currently with an admin's help)</label>
+                        <br/><br/>
+
+                            <button type="submit">Save Changes</button>
+                    </form>
+                </div>    
+                
+                    <br/>
+
                 <button onclick="loadAccountDetails()">Cancel</button>
             <div>
         `;
@@ -150,7 +234,6 @@ async function submitAccountChanges(event) {
     const username = document.getElementById("editUsername").value.trim();
     const age = document.getElementById("editAge").value.trim();
     const password = document.getElementById("editPassword").value.trim();
-
    
     const body = {};
         if (name) body.name = name;
@@ -164,7 +247,7 @@ async function submitAccountChanges(event) {
     }
 
     try {
-        const response = await fetch(apiUrl("/user/me"), {
+        const response = await authFetch(apiUrl("/user/me"), {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -191,7 +274,7 @@ async function deleteAccount() {
 
     try {
         // FIRST ENDPOINT TO DELETE THE PERMISSIONS
-        const permResponse = await fetch(apiUrl(`/user/perm/me`), {
+        const permResponse = await authFetch(apiUrl(`/user/perm/me`), {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -205,7 +288,7 @@ async function deleteAccount() {
         
 
         //SECOND ENDPOINT TO DELETE THE USER
-        const response = await fetch(apiUrl("/user/me"), {
+        const response = await authFetch(apiUrl("/user/me"), {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -223,34 +306,6 @@ async function deleteAccount() {
     } catch (error) {
         alert("Error: " + error.message);
     }
-}
-
-async function retrieveUserDetails() {
-
-    //CALLS THE ENDPOINT
-    const response = await fetch(apiUrl(`/user/me`), {
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-        }
-    });
-
-    if (!response.ok) {
-        throw new Error("Failed to load account details");
-    }
-
-    // CAPTURE RETURNED DATA
-    const userData = await response.json();
-    const currentUser = userData.user;
-    const userPermissions = userData.permissions;
-
-    //CONSOLE LOGS THE RESPONSES
-    console.log("User:", currentUser);
-    console.log("Permissions:", userPermissions);
-
-    return {
-        currentUser,
-        userPermissions
-    };
 }
 
 async function loadAccountDetails() {

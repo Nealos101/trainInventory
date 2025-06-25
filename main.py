@@ -9,7 +9,7 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 
 #IMPORT FILES
-from routers import authRoutes, baseRoutes, dbRoutes
+from routers import authRoutes, baseRoutes, dbRoutes, InventoryRoutes
 from services import dbService
 
 #IMPORT FILES VARIABLE BRIDGES
@@ -17,6 +17,7 @@ vBaseRoute = baseRoutes
 vAuthRoute = authRoutes
 vDbService = dbService
 vDbRoute = dbRoutes
+vInvRoute = InventoryRoutes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,18 +27,19 @@ async def lifespan(app: FastAPI):
 #APP DEFINE
 app = FastAPI(lifespan=lifespan)
 
-#APP ROUTERS BASE_ROUTES
+#APP ROUTERS BASE ROUTES
 for vBaseRoute in [
     vBaseRoute.routerHome,
     vBaseRoute.routerInventory,
     vBaseRoute.routerAccount,
     vBaseRoute.routerHelp,
-    vBaseRoute.routerGuides
+    vBaseRoute.routerGuides,
+    vBaseRoute.routerEnum
 
 ]:
     app.include_router(vBaseRoute)
 
-#APP ROUTERS AUTH_ROUTES
+#APP ROUTERS AUTH ROUTES
 for vAuthRoute in [
     vAuthRoute.routerToken,
     vAuthRoute.routerRefreshToken,
@@ -45,12 +47,18 @@ for vAuthRoute in [
 ]:
     app.include_router(vAuthRoute)
 
-#APP ROUTERS DB_ROUTES
+#APP ROUTERS DB ROUTES
 for vDbRoute in [
     vDbRoute.routerOwners,
     vDbRoute.routerUser
 ]:
     app.include_router(vDbRoute)
+
+#APP ROUTERS INV ROUTES
+for vInvRoute in [
+    vInvRoute.routerInv
+]:
+    app.include_router(vInvRoute)
 
 # app.include_router(auth_routes.routerToken)
 # app.include_router(auth_routes.routerMe)

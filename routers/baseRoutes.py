@@ -8,6 +8,12 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+#IMPORT CLASSES
+from schemas import dbSchema
+
+#IMPORT FILES VARIABLE BRIDGES
+vDbSchemas = dbSchema
+
 #DEFINE ROUTERS
 routerHome = APIRouter()
 
@@ -31,22 +37,36 @@ routerGuides = APIRouter(
     tags=["guides"]
 )
 
+routerEnum = APIRouter(
+    prefix="/enum",
+    tags=["enum"]
+)
+
 templates = Jinja2Templates(directory="Scenes")
 
 #ROUTES
 @routerHome.get("/", response_class=HTMLResponse)
-async def openHome(request: Request):
+async def open_home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @routerAccount.get("/", response_class=HTMLResponse)
-async def openAccount(request: Request):
+async def open_account(request: Request):
     return templates.TemplateResponse("account.html", {"request": request})
 
 @routerInventory.get("/", response_class=HTMLResponse)
-async def openInventory(request: Request):
+async def open_inventory(request: Request):
     return templates.TemplateResponse("inventory.html", {"request": request})
 
 @routerGuides.get("/")
-async def openGuides(request: Request):
+async def open_guides(request: Request):
     return templates.TemplateResponse(
         "guides.html", {"request": request})
+
+@routerEnum.get("/")
+async def retrieve_all_enums():
+    return {
+        "wheelClasses": [e.value for e in vDbSchemas.wheelType],
+        "couplerClasses": [e.value for e in vDbSchemas.couplerType],
+        "powerClasses": [e.value for e in vDbSchemas.powerClass],
+        "stockClasses": [e.value for e in vDbSchemas.stockClass]
+    }

@@ -1,5 +1,5 @@
 const container = document.getElementById("mainAdminContainer");
-console.log("Admin script was loaded successfully");
+// console.log("Admin script was loaded successfully");
 renderFetchUser(container);
 
 function renderFetchUser(container) {
@@ -105,12 +105,12 @@ function renderAdminPanel(
 
 async function showUserTableButt(event) {
     event.preventDefault();
-    console.log("showUserTableButt was called");
+    // console.log("showUserTableButt was called");
     const container = document.getElementById("mainAdminContainer");
 
     //CALLS THE ENDPOINT
     try {
-            const response = await fetch(apiUrl(`/owners`), {
+            const response = await authFetch(apiUrl(`/owners`), {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
                 }
@@ -124,7 +124,8 @@ async function showUserTableButt(event) {
             const usersData = await response.json();
 
             // SUCCESS AND ACTIVATE FORM HERE
-            return console.log("Table returned:", usersData), renderUsersTable(container, usersData);
+            return renderUsersTable(container, usersData);
+                // console.log("Table returned:", usersData),
 
         } catch (error) {
             alert("Error loading table, info: " + error.message);
@@ -175,13 +176,13 @@ async function renderUsersTable(container, userData) {
 
 async function adminChosenUser(event) {
     event.preventDefault();
-    console.log("User data pull was started");
+    // console.log("User data pull was started");
 
     const ownerId = document.getElementById("ownerId").value;
 
     //CALLS THE ENDPOINT
     try {
-            const response = await fetch(apiUrl(`/owners/admin/${ownerId}`), {
+            const response = await authFetch(apiUrl(`/owners/admin/${ownerId}`), {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
                 }
@@ -221,7 +222,7 @@ async function adminChosenUser(event) {
 
 async function submitAdminAccountChanges(event) {
     event.preventDefault();
-    console.log("Details are now being submitted.");
+    // console.log("Details are now being submitted.");
 
     const dataForm = document.getElementById("adminAccountChanges");
     const ownerId = dataForm.dataset.ownerId;
@@ -244,7 +245,7 @@ async function submitAdminAccountChanges(event) {
     }
 
     try {
-        const response = await fetch(apiUrl(`/owners/admin/${ownerId}`), {
+        const response = await authFetch(apiUrl(`/owners/admin/${ownerId}`), {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -267,7 +268,7 @@ async function submitAdminAccountChanges(event) {
 
 async function submitAdminPermChanges(event) {
     event.preventDefault();
-    console.log("User permissions update was started.")
+    // console.log("User permissions update was started.")
 
     const form = event.target;
     const ownerId = form.getAttribute("data-owner-id");
@@ -306,7 +307,7 @@ async function submitAdminPermChanges(event) {
 
     // Submit patch request
     try {
-        const response = await fetch(apiUrl(`/perm/${ownerId}`), {
+        const response = await authFetch(apiUrl(`/perm/${ownerId}`), {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -330,14 +331,14 @@ async function submitAdminDelete() {
     const confirmDelete = confirm("Are you sure you want to delete this user's account? This action cannot be undone. By proceeding you also understand you will lose admin privaledges if misused?");
     if (!confirmDelete) return;
 
-    console.log("User delete has started");
+    // console.log("User delete has started");
 
     const dataButton = document.getElementById("adminAccountChanges");
     const ownerId = dataButton.dataset.ownerId;
 
     try {
         // CALL THE FIRST ENDPOINT TO DELETE PERMISSIONS
-        const permResponse = await fetch(apiUrl(`/perm/${ownerId}`), {
+        const permResponse = await authFetch(apiUrl(`/perm/${ownerId}`), {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -350,7 +351,7 @@ async function submitAdminDelete() {
         }
     
         // CALL THE SECOND ENDPOINT TO DELETE USER
-        const response = await fetch(apiUrl(`/owners/${ownerId}`), {
+        const response = await authFetch(apiUrl(`/owners/${ownerId}`), {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`
