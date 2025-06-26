@@ -9,7 +9,7 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 
 #IMPORT FILES
-from routers import authRoutes, baseRoutes, dbRoutes, InventoryRoutes
+from routers import authRoutes, baseRoutes, dbRoutes, inventoryRoutes
 from services import dbService
 
 #IMPORT FILES VARIABLE BRIDGES
@@ -17,7 +17,7 @@ vBaseRoute = baseRoutes
 vAuthRoute = authRoutes
 vDbService = dbService
 vDbRoute = dbRoutes
-vInvRoute = InventoryRoutes
+vInvRoute = inventoryRoutes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
